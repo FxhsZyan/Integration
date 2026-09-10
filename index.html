@@ -20,21 +20,7 @@
     <h1>Dashboard</h1>
     <p class="subtitle">Snapshot of what's on the shelves right now.</p>
 
-    <!-- Static placeholder values. Real numbers will come from the backend later. -->
-    <div class="stat-grid">
-      <div class="stat-card">
-        <div class="label">Total products</div>
-        <div class="value">5</div>
-      </div>
-      <div class="stat-card">
-        <div class="label">Units in stock</div>
-        <div class="value">424</div>
-      </div>
-      <div class="stat-card warning">
-        <div class="label">Low stock alerts</div>
-        <div class="value">2</div>
-      </div>
-    </div>
+    <div class="stat-grid" id="statGrid"></div>
 
     <div class="panel">
       <div class="panel-header">
@@ -45,23 +31,51 @@
         <thead>
           <tr><th>Product</th><th>SKU</th><th>On hand</th><th>Reorder at</th></tr>
         </thead>
-        <tbody>
-          <tr>
-            <td>Cable Tie 200mm</td>
-            <td class="sku">HW-1042</td>
-            <td class="num low">18</td>
-            <td class="num">30</td>
-          </tr>
-          <tr>
-            <td>A4 Bond Paper (Ream)</td>
-            <td class="sku">OF-3010</td>
-            <td class="num low">12</td>
-            <td class="num">15</td>
-          </tr>
-        </tbody>
+        <tbody id="lowStockBody"></tbody>
       </table>
     </div>
   </main>
 
+  <script src="repository.js"></script>
+  <script>
+    function peso(n) {
+      return "₱" + Number(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function render() {
+      const { totalItems, totalUnits, totalValue, lowStock } = InventoryRepository.stats();
+
+      document.getElementById("statGrid").innerHTML = `
+        <div class="stat-card">
+          <div class="label">Total products</div>
+          <div class="value">${totalItems}</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Units in stock</div>
+          <div class="value">${totalUnits}</div>
+        </div>
+        <div class="stat-card ${lowStock.length ? 'warning' : ''}">
+          <div class="label">Low stock alerts</div>
+          <div class="value">${lowStock.length}</div>
+        </div>
+      `;
+
+      const body = document.getElementById("lowStockBody");
+      if (lowStock.length === 0) {
+        body.innerHTML = `<tr><td colspan="4" class="empty-state">Nothing needs reordering. All good.</td></tr>`;
+        return;
+      }
+      body.innerHTML = lowStock.map(p => `
+        <tr>
+          <td>${p.name}</td>
+          <td class="sku">${p.sku}</td>
+          <td class="num low">${p.quantity}</td>
+          <td class="num">${p.reorderLevel}</td>
+        </tr>
+      `).join("");
+    }
+
+    render();
+  </script>
 </body>
 </html>

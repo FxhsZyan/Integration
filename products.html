@@ -20,10 +20,9 @@
     <h1>Products</h1>
     <p class="subtitle">Every item currently tracked in the stockroom.</p>
 
-    <!-- Static sample rows for now. Table will be populated dynamically once the backend/repository is added. -->
     <div class="panel">
       <div class="panel-header">
-        <span>5 items</span>
+        <span id="countLabel">— items</span>
         <a href="product-form.html" class="btn btn-primary btn-sm">+ Add product</a>
       </div>
       <table>
@@ -33,81 +32,65 @@
             <th>Qty</th><th>Unit price</th><th>Status</th><th></th>
           </tr>
         </thead>
-        <tbody>
-          <tr>
-            <td>Steel Bolt M8x40</td>
-            <td class="sku">HW-1001</td>
-            <td><span class="tag">Hardware</span></td>
-            <td class="num">240</td>
-            <td class="num">₱3.50</td>
-            <td><span class="tag">OK</span></td>
-            <td>
-              <div class="row-actions">
-                <a class="btn btn-sm" href="product-form.html?id=1">Edit</a>
-                <button class="btn btn-sm btn-danger">Delete</button>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td>Cable Tie 200mm</td>
-            <td class="sku">HW-1042</td>
-            <td><span class="tag">Hardware</span></td>
-            <td class="num low">18</td>
-            <td class="num">₱0.75</td>
-            <td><span class="tag low-tag">Reorder</span></td>
-            <td>
-              <div class="row-actions">
-                <a class="btn btn-sm" href="product-form.html?id=2">Edit</a>
-                <button class="btn btn-sm btn-danger">Delete</button>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td>USB-C Cable 1m</td>
-            <td class="sku">EL-2005</td>
-            <td><span class="tag">Electronics</span></td>
-            <td class="num">64</td>
-            <td class="num">₱89.00</td>
-            <td><span class="tag">OK</span></td>
-            <td>
-              <div class="row-actions">
-                <a class="btn btn-sm" href="product-form.html?id=3">Edit</a>
-                <button class="btn btn-sm btn-danger">Delete</button>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td>A4 Bond Paper (Ream)</td>
-            <td class="sku">OF-3010</td>
-            <td><span class="tag">Office</span></td>
-            <td class="num low">12</td>
-            <td class="num">₱175.00</td>
-            <td><span class="tag low-tag">Reorder</span></td>
-            <td>
-              <div class="row-actions">
-                <a class="btn btn-sm" href="product-form.html?id=4">Edit</a>
-                <button class="btn btn-sm btn-danger">Delete</button>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td>Ballpoint Pen (Box)</td>
-            <td class="sku">OF-3021</td>
-            <td><span class="tag">Office</span></td>
-            <td class="num">90</td>
-            <td class="num">₱60.00</td>
-            <td><span class="tag">OK</span></td>
-            <td>
-              <div class="row-actions">
-                <a class="btn btn-sm" href="product-form.html?id=5">Edit</a>
-                <button class="btn btn-sm btn-danger">Delete</button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
+        <tbody id="productBody"></tbody>
       </table>
     </div>
   </main>
 
+  <div class="toast" id="toast"></div>
+
+  <script src="repository.js"></script>
+  <script>
+    function peso(n) {
+      return "₱" + Number(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.classList.add("show");
+      setTimeout(() => t.classList.remove("show"), 2200);
+    }
+
+    function render() {
+      const products = InventoryRepository.getAll();
+      document.getElementById("countLabel").textContent = `${products.length} item${products.length === 1 ? "" : "s"}`;
+
+      const body = document.getElementById("productBody");
+      if (products.length === 0) {
+        body.innerHTML = `<tr><td colspan="7" class="empty-state">No products yet. Add your first one.</td></tr>`;
+        return;
+      }
+
+      body.innerHTML = products.map(p => {
+        const isLow = Number(p.quantity) <= Number(p.reorderLevel);
+        return `
+          <tr>
+            <td>${p.name}</td>
+            <td class="sku">${p.sku}</td>
+            <td><span class="tag">${p.category}</span></td>
+            <td class="num ${isLow ? 'low' : ''}">${p.quantity}</td>
+            <td class="num">${peso(p.unitPrice)}</td>
+            <td>${isLow ? '<span class="tag low-tag">Reorder</span>' : '<span class="tag">OK</span>'}</td>
+            <td>
+              <div class="row-actions">
+                <a class="btn btn-sm" href="product-form.html?id=${p.id}">Edit</a>
+                <button class="btn btn-sm btn-danger" onclick="handleDelete('${p.id}', '${p.name.replace(/'/g, "\\'")}')">Delete</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function handleDelete(id, name) {
+      if (!confirm(`Delete "${name}"? This can't be undone.`)) return;
+      InventoryRepository.remove(id);
+      showToast(`Deleted "${name}"`);
+      render();
+    }
+
+    render();
+  </script>
 </body>
 </html>

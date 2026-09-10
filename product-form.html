@@ -17,42 +17,81 @@
   </aside>
 
   <main>
-    <h1>Add product</h1>
-    <p class="subtitle">Add a new item to the stockroom.</p>
+    <h1 id="pageTitle">Add product</h1>
+    <p class="subtitle" id="pageSubtitle">Add a new item to the stockroom.</p>
 
-    <!-- Static form only. Submit does nothing yet — wired up once the backend exists. -->
-    <form class="card">
+    <form class="card" id="productForm">
       <div class="field">
         <label for="name">Product name</label>
-        <input type="text" id="name" placeholder="e.g. Steel Bolt M8x40">
+        <input type="text" id="name" required placeholder="e.g. Steel Bolt M8x40">
       </div>
       <div class="field">
         <label for="sku">SKU</label>
-        <input type="text" id="sku" placeholder="e.g. HW-1001">
+        <input type="text" id="sku" required placeholder="e.g. HW-1001">
       </div>
       <div class="field">
         <label for="category">Category</label>
-        <input type="text" id="category" placeholder="e.g. Hardware">
+        <input type="text" id="category" required placeholder="e.g. Hardware">
       </div>
       <div class="field">
         <label for="quantity">Quantity on hand</label>
-        <input type="number" id="quantity" min="0" placeholder="0">
+        <input type="number" id="quantity" min="0" required placeholder="0">
       </div>
       <div class="field">
         <label for="reorderLevel">Reorder level</label>
-        <input type="number" id="reorderLevel" min="0" placeholder="0">
+        <input type="number" id="reorderLevel" min="0" required placeholder="0">
       </div>
       <div class="field">
         <label for="unitPrice">Unit price (₱)</label>
-        <input type="number" id="unitPrice" min="0" step="0.01" placeholder="0.00">
+        <input type="number" id="unitPrice" min="0" step="0.01" required placeholder="0.00">
       </div>
 
       <div class="form-actions">
-        <button type="button" class="btn btn-primary">Save product</button>
+        <button type="submit" class="btn btn-primary" id="submitBtn">Save product</button>
         <a href="products.html" class="btn">Cancel</a>
       </div>
     </form>
   </main>
 
+  <script src="repository.js"></script>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const editId = params.get("id");
+    const form = document.getElementById("productForm");
+
+    if (editId) {
+      const product = InventoryRepository.getById(editId);
+      if (product) {
+        document.getElementById("pageTitle").textContent = "Edit product";
+        document.getElementById("pageSubtitle").textContent = `Editing "${product.name}".`;
+        document.getElementById("submitBtn").textContent = "Update product";
+        document.getElementById("name").value = product.name;
+        document.getElementById("sku").value = product.sku;
+        document.getElementById("category").value = product.category;
+        document.getElementById("quantity").value = product.quantity;
+        document.getElementById("reorderLevel").value = product.reorderLevel;
+        document.getElementById("unitPrice").value = product.unitPrice;
+      }
+    }
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const data = {
+        name: document.getElementById("name").value.trim(),
+        sku: document.getElementById("sku").value.trim(),
+        category: document.getElementById("category").value.trim(),
+        quantity: Number(document.getElementById("quantity").value),
+        reorderLevel: Number(document.getElementById("reorderLevel").value),
+        unitPrice: Number(document.getElementById("unitPrice").value)
+      };
+
+      if (editId) {
+        InventoryRepository.update(editId, data);
+      } else {
+        InventoryRepository.add(data);
+      }
+      window.location.href = "products.html";
+    });
+  </script>
 </body>
 </html>
