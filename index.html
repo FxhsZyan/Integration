@@ -27,12 +27,12 @@
         <span>Needs reordering</span>
         <a href="products.html" class="btn btn-sm">View all products</a>
       </div>
-      <table>
+      <div class="table-wrap"><table>
         <thead>
           <tr><th>Product</th><th>SKU</th><th>On hand</th><th>Reorder at</th></tr>
         </thead>
         <tbody id="lowStockBody"></tbody>
-      </table>
+      </table></div>
     </div>
   </main>
 
@@ -53,6 +53,10 @@
         <div class="stat-card">
           <div class="label">Units in stock</div>
           <div class="value">${totalUnits}</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Inventory value</div>
+          <div class="value">${peso(totalValue)}</div>
         </div>
         <div class="stat-card ${lowStock.length ? 'warning' : ''}">
           <div class="label">Low stock alerts</div>
