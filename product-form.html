@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Stockroom — Add/Edit Product</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <aside class="sidebar">
+    <div class="brand">STOCK<span>ROOM</span></div>
+    <nav class="nav-links">
+      <a href="index.html">Dashboard</a>
+      <a href="products.html">Products</a>
+      <a href="product-form.html" class="active">Add Product</a>
+    </nav>
+  </aside>
+
+  <main>
+    <h1>Add product</h1>
+    <p class="subtitle">Add a new item to the stockroom.</p>
+
+    <!-- Static form only. Submit does nothing yet — wired up once the backend exists. -->
+    <form class="card">
+      <div class="field">
+        <label for="name">Product name</label>
+        <input type="text" id="name" placeholder="e.g. Steel Bolt M8x40">
+      </div>
+      <div class="field">
+        <label for="sku">SKU</label>
+        <input type="text" id="sku" placeholder="e.g. HW-1001">
+      </div>
+      <div class="field">
+        <label for="category">Category</label>
+        <input type="text" id="category" placeholder="e.g. Hardware">
+      </div>
+      <div class="field">
+        <label for="quantity">Quantity on hand</label>
+        <input type="number" id="quantity" min="0" placeholder="0">
+      </div>
+      <div class="field">
+        <label for="reorderLevel">Reorder level</label>
+        <input type="number" id="reorderLevel" min="0" placeholder="0">
+      </div>
+      <div class="field">
+        <label for="unitPrice">Unit price (₱)</label>
+        <input type="number" id="unitPrice" min="0" step="0.01" placeholder="0.00">
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn-primary">Save product</button>
+        <a href="products.html" class="btn">Cancel</a>
+      </div>
+    </form>
+  </main>
+
+</body>
+</html>
