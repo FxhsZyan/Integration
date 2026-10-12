@@ -42,6 +42,12 @@
       return "₱" + Number(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
+    function esc(s) {
+      return String(s).replace(/[&<>"']/g, c => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+      }[c]));
+    }
+
     function render() {
       const { totalItems, totalUnits, totalValue, lowStock } = InventoryRepository.stats();
 
@@ -71,8 +77,8 @@
       }
       body.innerHTML = lowStock.map(p => `
         <tr>
-          <td>${p.name}</td>
-          <td class="sku">${p.sku}</td>
+          <td>${esc(p.name)}</td>
+          <td class="sku">${esc(p.sku)}</td>
           <td class="num low">${p.quantity}</td>
           <td class="num">${p.reorderLevel}</td>
         </tr>

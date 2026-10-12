@@ -60,8 +60,17 @@ const InventoryRepository = (() => {
   }
 
   function remove(id) {
-    const products = readAll().filter(p => p.id !== id);
-    writeAll(products);
+    const products = readAll();
+    const remaining = products.filter(p => p.id !== id);
+    if (remaining.length === products.length) return false; // nothing matched
+    writeAll(remaining);
+    return true;
+  }
+
+  // True if another product (not excludeId) already uses this SKU.
+  function skuExists(sku, excludeId = null) {
+    const target = String(sku).trim().toLowerCase();
+    return readAll().some(p => p.id !== excludeId && String(p.sku).trim().toLowerCase() === target);
   }
 
   function stats() {
@@ -75,5 +84,5 @@ const InventoryRepository = (() => {
 
   seedIfEmpty();
 
-  return { getAll, getById, add, update, remove, stats };
+  return { getAll, getById, add, update, remove, skuExists, stats };
 })();

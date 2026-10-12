@@ -144,6 +144,9 @@ form.card { max-width: 650px; padding: 30px; border: 1px solid var(--border); bo
 .field input::placeholder { color: var(--muted-2); }
 .field input:focus, .field select:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(139,124,255,.11); }
 .form-actions { display: flex; gap: 10px; margin-top: 28px; }
+.field.has-error input { border-color: var(--danger); }
+.field-error { display: none; margin-top: 7px; color: var(--danger); font-size: .75rem; }
+.field.has-error .field-error { display: block; }
 .empty-state { padding: 52px 20px; color: var(--muted); text-align: center; }
 .toast { position: fixed; right: 24px; bottom: 24px; display: none; padding: 13px 18px; border: 1px solid var(--cyan); border-radius: 12px; color: var(--text); background: var(--surface-strong); box-shadow: var(--shadow); font-size: .8rem; z-index: 3; }
 .toast.show { display: block; animation: rise .22s ease-out; }

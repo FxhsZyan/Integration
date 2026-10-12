@@ -28,6 +28,7 @@
       <div class="field">
         <label for="sku">SKU</label>
         <input type="text" id="sku" required placeholder="e.g. HW-1001">
+        <div class="field-error" id="skuError">That SKU is already used by another product.</div>
       </div>
       <div class="field">
         <label for="category">Category</label>
@@ -59,6 +60,8 @@
     const editId = params.get("id");
     const form = document.getElementById("productForm");
 
+    const skuField = document.getElementById("sku").closest(".field");
+
     if (editId) {
       const product = InventoryRepository.getById(editId);
       if (product) {
@@ -71,8 +74,16 @@
         document.getElementById("quantity").value = product.quantity;
         document.getElementById("reorderLevel").value = product.reorderLevel;
         document.getElementById("unitPrice").value = product.unitPrice;
+      } else {
+        // Bad or stale link: don't fall through to a blank "add" form.
+        document.getElementById("pageTitle").textContent = "Product not found";
+        document.getElementById("pageSubtitle").textContent = "It may have been deleted. Head back to the products list.";
+        form.innerHTML = `<div class="form-actions"><a href="products.html" class="btn btn-primary">Back to products</a></div>`;
       }
     }
+
+    // Clear the error as soon as the user edits the SKU.
+    document.getElementById("sku").addEventListener("input", () => skuField.classList.remove("has-error"));
 
     form.addEventListener("submit", (e) => {
       e.preventDefault();
@@ -85,10 +96,20 @@
         unitPrice: Number(document.getElementById("unitPrice").value)
       };
 
+      // On update, the product's own current SKU doesn't count as a clash.
+      if (InventoryRepository.skuExists(data.sku, editId)) {
+        skuField.classList.add("has-error");
+        document.getElementById("sku").focus();
+        return;
+      }
+
       if (editId) {
-        InventoryRepository.update(editId, data);
+        const updated = InventoryRepository.update(editId, data);
+        if (!updated) { alert("This product no longer exists."); window.location.href = "products.html"; return; }
+        sessionStorage.setItem("stockroom_flash", `Updated "${updated.name}"`);
       } else {
         InventoryRepository.add(data);
+        sessionStorage.setItem("stockroom_flash", `Added "${data.name}"`);
       }
       window.location.href = "products.html";
     });
